@@ -1,0 +1,304 @@
+/**
+ * JavaCC template file created by SF JavaCC plugin 1.5.28+ wizard for JavaCC 1.5.0+
+ * Adaptado: https://www.youtube.com/watch?v=HlMc-qohsNs
+ */
+
+options {
+	IGNORE_CASE = true;
+}
+
+PARSER_BEGIN(Compilador)
+class Compilador 
+{
+	public static void main(String[] args)throws ParseException
+	{
+		try {
+		    Compilador compilador = new Compilador(System.in);
+			compilador.Program();
+			System.out.println("Compilado com sucesso!");
+		}
+		catch(ParseException e){
+			System.out.println(e.getMessage());
+			System.out.println("Foi encontrado um erro!");
+		}
+	}
+}
+PARSER_END(Compilador)
+
+SKIP:
+{
+  " "
+| "\r"
+| "\t"
+| "\n"
+}
+
+TOKEN:
+{
+    <INSTRUCOES:"end"|"begin"|"if"|"while" >{System.out.println("INSTRUCAO -> "+image);}
+	| <INSTRUCAO_THEN:"then" >{System.out.println("INSTRUCAO_THEN -> "+image);}
+	| <INSTRUCAO_DO:"do" >{System.out.println("INSTRUCAO_DO -> "+image);}
+}
+
+TOKEN:
+{
+	<FUNCOES:"random"|"cos"|"abs"|"odd"|"length"|"copy"|"UpCase"|"trunc"|"int"|"sizeof" >{System.out.println("FUNCAO -> "+image);}
+}
+
+TOKEN:
+{
+	<COMANDOS:"readln"|"writeln"|"write"|"read">{System.out.println("COMANDO -> "+image);}
+}
+
+TOKEN:
+{
+	<PALAVRAS_RESERVADAS: "div" | "or" | "and" | "not"| "if" | "then" | "else" | "of" | "while" | "do" | "begin" | "end" | "read" | "write" | "var" | "array" | "function" | "procedure" | "program" | "true" | "false"> {System.out.println("PALAVRAS_RESERVADAS -> "+image); }
+}
+
+TOKEN: { 
+	<OPERADORES: "+"|"-"|"*"|"/"|"=">{System.out.println("OPERADOR -> "+image);} 
+}
+TOKEN:
+{
+  <COMPARADORES: "<>"|"<"|">"|"<="|">="|":=" >{System.out.println("COMPARADOR -> "+image);}
+}
+ 
+TOKEN:
+{
+	  <TIPOS: "integer"|"shortint"|"longint"|"byte"|"word"|"real"|"single"|"double"|"extended"|"comp"|"boolean"|"char"|"string">{System.out.println("TIPO -> "+image);}
+	| <BOOLEANAS:"TRUE"|"FALSE" >{System.out.println("BOOLEAN -> "+image);}
+	| <NUMEROS : (["0"-"9"])+ > {System.out.print("NUMERO "+image+"\r\n");}
+	| <SIMBOLOS_ESPECIAIS : "of"|"array"|"uses"|"label"|"const"|"type"|"var"|"procedure"|"function"> {System.out.print("SIMBOLOS_ESPECIAIS -> "+image+"\r\n");}
+	| <IDENTIFICADORES : ["a"-"z","A"-"Z"](["a"-"z","A"-"Z","0"-"9","_"])*>{System.out.print("IDENTIFICADOR -> "+image+"\r\n");}
+}
+
+TOKEN:
+{
+	<PROGRAMA: "Program " > {System.out.println("PROGRAMA -> "+image);}
+}
+TOKEN:
+{
+      <ABRE_PARENTESE: "(" >{System.out.println("ABRE_PARENTESE -> "+image);}
+	| <FECHA_PARENTESE: ")" >{System.out.println("FECHA_PARENTESE -> "+image);}
+	| <ABRE_CHAVE: "{" >{System.out.println("ABRE_CHAVE -> "+image);}
+	| <FECHA_CHAVE: "}" >{System.out.println("FECHA_CHAVE -> "+image);}
+	| <ABRE_COLCHETE: "[" >{System.out.println("ABRE_COLCHETE -> "+image);}
+	| <FECHA_COLCHETE: "]" >{System.out.println("FECHA_COLCHETE -> "+image);}
+	| <SIMBOLOS: ";"|":"|"."|"," >{System.out.println("SIMBOLO -> "+image);}
+}
+
+void Program() :
+{}
+{
+	<PROGRAMA><IDENTIFICADORES><SIMBOLOS>block()
+}
+
+void block() :
+{}
+{
+	variableDeclarationPart()statementPart()
+}
+
+void variableDeclarationPart() :
+{}
+{
+	<SIMBOLOS_ESPECIAIS>variableDeclaration()<SIMBOLOS><ABRE_CHAVE>variableDeclaration()<SIMBOLOS><FECHA_CHAVE>
+}
+
+void variableDeclaration() :
+{}
+{
+	<IDENTIFICADORES><ABRE_CHAVE><SIMBOLOS><IDENTIFICADORES><FECHA_CHAVE><SIMBOLOS>type()
+}
+
+void type() :
+{}
+{
+	simpleType() | arrayType()
+}
+
+void arrayType() :
+{}
+{
+	<SIMBOLOS_ESPECIAIS><ABRE_COLCHETE>indexRange()<FECHA_COLCHETE><SIMBOLOS_ESPECIAIS><SIMBOLOS_ESPECIAIS>
+}
+
+void indexRange() :
+{}
+{
+	<NUMEROS>
+}
+
+void simpleType() :
+{}
+{
+	<TIPOS>
+}
+
+void typeIdentifier() :
+{}
+{
+	<IDENTIFICADORES>
+}
+
+void statementPart() :
+{}
+{
+	compoundStatement()
+}
+
+void compoundStatement() :
+{}
+{
+	<INSTRUCOES>statement()<ABRE_CHAVE><SIMBOLOS>statement()<FECHA_CHAVE><INSTRUCOES>
+}
+
+void statement() :
+{}
+{
+	simpleStatement() | structuredStatement()
+}
+
+void simpleStatement() :
+{}
+{
+	assignment() | readStatement()
+}
+
+void structuredStatement() :
+{}
+{
+	compoundStatement()
+}
+
+void ifStatement() :
+{}
+{
+	<INSTRUCOES>expression()<INSTRUCAO_THEN>statement()
+}
+
+void whileStatement() :
+{}
+{
+	<INSTRUCOES>expression()<INSTRUCAO_DO>statement()
+}
+
+void readStatement() :
+{}
+{
+	<COMANDOS><ABRE_PARENTESE>variable()<ABRE_CHAVE><SIMBOLOS>variable()<FECHA_CHAVE><FECHA_PARENTESE>
+}
+
+void writeStatement() :
+{}
+{
+	<COMANDOS><ABRE_PARENTESE>variable()<FECHA_CHAVE><SIMBOLOS>variable()<FECHA_CHAVE><FECHA_PARENTESE>
+}
+
+void assignment() :
+{}
+{
+	variable()<OPERADORES>expression()
+}
+
+void variable() :
+{}
+{
+	entireVariable()
+}
+
+void entireVariable() :
+{}
+{
+	variableIdentifier()
+}
+
+void variableIdentifier() :
+{}
+{
+	<IDENTIFICADORES>
+}
+
+void indexedVariable() :
+{}
+{
+	arrayVariable()<ABRE_COLCHETE>expression()<FECHA_COLCHETE>
+}
+
+void arrayVariable() :
+{}
+{
+	entireVariable()
+}
+
+void expression() :
+{}
+{
+	simpleExpression()
+}
+
+void relationalOperator() :
+{}
+{
+	<OPERADORES>
+}
+
+void simpleExpression() :
+{}
+{
+	sing()term()<ABRE_CHAVE>addingOperator()term()<FECHA_CHAVE>
+}
+
+void sing() :
+{}
+{
+	<OPERADORES>
+}
+
+void addingOperator() :
+{}
+{
+	<OPERADORES>
+}
+
+void term() :
+{}
+{
+	factor()<ABRE_CHAVE>multiplyingOperator()factor()<FECHA_CHAVE>
+}
+
+void factor() :
+{}
+{
+	variable()
+}
+
+void multiplyingOperator() :
+{}
+{
+	<OPERADORES>
+}
+
+void constant() :
+{}
+{
+	integerConstante()
+}
+
+void integerConstante() :
+{}
+{
+	<IDENTIFICADORES>
+}
+
+void characterConstant() :
+{}
+{
+	lettetOrDigit()
+}
+
+void lettetOrDigit() :
+{}
+{
+	<IDENTIFICADORES> | <NUMEROS>
+}
